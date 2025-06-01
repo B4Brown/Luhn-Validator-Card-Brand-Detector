@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Card Validator with Brand Detection</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 2rem; background: #f0f0f0; }
+    .card { background: #fff; padding: 1.5rem; border-radius: 10px; max-width: 400px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    input, button { padding: 0.6rem; font-size: 1rem; margin-top: 1rem; width: 100%; border-radius: 5px; border: 1px solid #ccc; }
+    .result { margin-top: 1rem; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>🔍 Card Validator + Brand Detector</h2>
+    <input type="text" id="cardNumber" placeholder="Enter card number..." />
+    <button onclick="validateCard()">Validate</button>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    function luhnCheck(card) {
+      let sum = 0, shouldDouble = false;
+      for (let i = card.length - 1; i >= 0; i--) {
+        let digit = parseInt(card.charAt(i));
+        if (shouldDouble) {
+          digit *= 2;
+          if (digit > 9) digit -= 9;
+        }
+        sum += digit;
+        shouldDouble = !shouldDouble;
+      }
+      return sum % 10 === 0;
+    }
+
+    function getCardBrand(card) {
+      if (/^4/.test(card)) return "Visa";
+      if (/^5[1-5]/.test(card)) return "MasterCard";
+      if (/^3[47]/.test(card)) return "American Express";
+      if (/^6(?:011|5)/.test(card)) return "Discover";
+      if (/^35/.test(card)) return "JCB";
+      if (/^3(?:0[0-5]|[68])/.test(card)) return "Diners Club";
+      return "Unknown Brand";
+    }
+
+    function validateCard() {
+      let cardInput = document.getElementById("cardNumber").value.replace(/\s+/g, '');
+      if (!/^\d+$/.test(cardInput)) {
+        document.getElementById("result").textContent = "❌ Please enter only digits.";
+        return;
+      }
+      const isValid = luhnCheck(cardInput);
+      const brand = getCardBrand(cardInput);
+      document.getElementById("result").textContent = 
+        `Brand: ${brand} | Luhn Valid: ${isValid ? "✅ Yes" : "❌ No"}`;
+    }
+  </script>
+</body>
+</html>
